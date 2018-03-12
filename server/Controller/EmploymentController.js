@@ -102,7 +102,7 @@
     function _rearrangeEmploymentDetail(req, res) {
         var promiseArray = [];
         _.each(req.body, function (employee, level_index) {
-            promiseArray.push(_updateLevelIndex(employee, level_index));
+            promiseArray.push(_updateLevelIndex(employee, level_index, req.body.length));
         });
         Q.all(promiseArray)
             .then(function (docs) {
@@ -118,12 +118,12 @@
             })
     }
 
-    function _updateLevelIndex(employee, level_index) {
+    function _updateLevelIndex(employee, level_index, length) {
         var defer = Q.defer();
         Employment.findOneAndUpdate({
             _id: employee._id
         }, {
-                level_index: level_index
+                level_index: length - level_index
             }, { new: true }, function (err, doc) {
                 if (err) {
                     defer.reject(err)
@@ -148,7 +148,7 @@
                 var filterObject = {};
                 if (req.query && req.query.user_id)
                     filterObject.user_id = req.query.user_id;
-                Employment.find(filterObject).sort('level_index').exec(function (err, docs) {
+                Employment.find(filterObject).sort([['level_index', -1]]).exec(function (err, docs) {
                     if (err) {
                         res.status(400).send({
                             errorMessage: 'Error by database',
@@ -157,7 +157,7 @@
                     } else {
                         var promiseArray = [];
                         _.each(docs, function (employee, level_index) {
-                            promiseArray.push(_updateLevelIndex(employee, level_index));
+                            promiseArray.push(_updateLevelIndex(employee, level_index, docs.length));
                         });
                         Q.all(promiseArray)
                             .then(function (docs) {
