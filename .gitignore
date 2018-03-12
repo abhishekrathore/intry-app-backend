@@ -1,0 +1,9 @@
+node_modules
+.idea
+public/lib/
+public/docs/
+adminPanel/lib/
+adminPanel/docs/
+lib/
+docs/
+public/uploads/
